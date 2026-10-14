@@ -1,18 +1,27 @@
-from pydantic_settings import BaseSettings
+from pathlib import Path
+from functools import lru_cache
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+BASE_DIR = Path(__file__).resolve().parents[2]
 
 class Settings(BaseSettings):
+    app_name: str = "Enterprise Multi-Tenant RAG API"
+    app_env: str = "development"
 
-    APP_NAME: str
+    database_url: str
+    jwt_secret_key: str
+    jwt_algoritm: str = "HS256"
+    access_token_expire_minutes: int = 30
 
-    APP_ENV: str
+    model_config = SettingsConfigDict(
+        env_file=BASE_DIR / ".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+        extra="ignore",
+    )
 
-    DATABASE_URL: str
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()
 
-    SECRET_KEY: str
-
-    LOG_LEVEL: str
-
-    class Config:
-        env_file = ".env"
-
-settings = Settings()
+settings = get_settings()
